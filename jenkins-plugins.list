@@ -142,3 +142,5 @@ blueocean-display-url:2.2.0
 blueocean-pipeline-editor:1.8.0
 blueocean-autofavorite:1.2.2
 docker-build-step:2.0
+amazon-ecr:1.6
+aws-bucket-credentials:0.2.2
