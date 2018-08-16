@@ -5,7 +5,12 @@ if [ ! -f docker-18.06.0-ce.tgz ]; then
 fi
 
 if [ -f xvt.technology.key ]; then
-    echo "TODO Need to implement s3 get the key and crt file here"
+    aws s3 cp s3://xvt-aws-secure-backups/jenkins/xvt.technology.key .
+    aws s3 cp s3://xvt-aws-secure-backups/jenkins/xvt.technology.crt .
 fi
 
-docker build -t jenkins/xvt-jenkins .
+if [ -z "$BUILD_NUMBER" ]; then
+    export BUILD_NUMBER="$(date '+%Y%m%d%H%M%S')"
+fi
+
+docker build -t jenkins/xvt-jenkins:${BUILD_NUMBER} .
