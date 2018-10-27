@@ -20,5 +20,5 @@ read ans
 if [ "$ans" = 'y' ]; then
     docker stop xvt_jenkins || true
     docker rm xvt_jenkins || true
-    docker run --detach --restart always --name xvt_jenkins -p 4343:4343 -p 50000:50000 -v /var/run/docker.sock:/var/run/docker.sock -v /dev/net/tun:/dev/net/tun --add-host="gitea.xvt.technology:10.100.9.14" -v jenkins_home:/var/jenkins_home jenkins/xvt-jenkins:latest
+    docker run --detach --restart always --name xvt_jenkins -p 4343:4343 -p 50000:50000 -v /var/run/docker.sock:/var/run/docker.sock -v /dev/net/tun:/dev/net/tun --add-host="docker-host.xvt.internal:10.100.9.14" -v jenkins_home:/var/jenkins_home jenkins/xvt-jenkins:latest
 fi
