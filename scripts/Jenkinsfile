@@ -1,0 +1,22 @@
+pipeline {
+    environment {
+        DOCKER_TLS_VERIFY=true
+        DOCKER_TLS=true
+        DOCKER_HOST="tcp://docker-host.xvt.internal:2376"
+        DOCKER_CA_PATH="/var/jenkins_home/.docker"
+        DOCKER_CERT_PATH="/var/jenkins_home/.docker"
+     }
+    agent { label 'master' }
+    options { timestamps() }
+    stages {
+        stage('Checkout source code and generate add user script') {
+            steps {
+                script {
+                    withAWSParameterStore(namePrefixes: '', naming: 'basename', path: "/jenkins/$PROJECT/vpn", recursive: true, regionName: 'ap-southeast-2') {
+                        sh "./scripts/jenkins-vpn.sh $ACTION"
+                    }
+                }
+            }
+        }
+    }
+}
