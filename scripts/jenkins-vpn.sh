@@ -39,8 +39,7 @@ EOF
       # Wait 5 minutes until the vpn status is healthy
       c=0
       while [ $c -lt 20 ]; do
-        status=$(docker inspect --format='{{json .State.Health.Status}}' $JENKIN_VPN_CONTAINER_NAME 2>/dev/null)
-        if [ "$status" == '"healthy"' ]; then
+        if `docker logs --tail 5 $JENKIN_VPN_CONTAINER_NAME | grep 'Initialization Sequence Completed' >/dev/null 2>&1`; then
             break
         else
             if [ $c -eq 20 ]; then
