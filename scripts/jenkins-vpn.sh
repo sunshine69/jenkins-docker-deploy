@@ -36,6 +36,22 @@ EOF
       docker rm -f $JENKIN_VPN_CONTAINER_NAME || true
       docker run -d --restart always --name $JENKIN_VPN_CONTAINER_NAME $DOCKER_VOL_OPT --cap-add=NET_ADMIN --workdir $WORKSPACE \
         --device /dev/net/tun dperson/openvpn-client openvpn scripts/$JENKINS_VPN_PROFILE_FILE_NAME
+      # Wait 5 minutes until the vpn status is healthy
+      c=0
+      while [ $c -lt 20 ]; do
+        status=$(docker inspect --format='{{json .State.Health.Status}}' $JENKIN_VPN_CONTAINER_NAME 2>/dev/null)
+        if [ "$status" == '"healthy"' ]; then
+            break
+        else
+            if [ $c -eq 20 ]; then
+                echo "CRITICAL ERROR. Container is not healthy after 5 minutes, aborting"
+                docker rm -f $JENKIN_VPN_CONTAINER_NAME || true
+                exit 1
+            fi
+            let "c=c+1"
+            sleep 15
+        fi
+      done
     fi
 }
 
