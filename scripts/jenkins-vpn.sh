@@ -38,7 +38,7 @@ EOF
         --device /dev/net/tun dperson/openvpn-client openvpn scripts/$JENKINS_VPN_PROFILE_FILE_NAME
       # Wait 5 minutes until the vpn status is healthy
       c=0
-      while [ $c -lt 20 ]; do
+      while [ $c -lt 60 ]; do
         if `docker logs --tail 5 $JENKIN_VPN_CONTAINER_NAME | grep 'Initialization Sequence Completed' >/dev/null 2>&1`; then
             break
         else
@@ -48,7 +48,7 @@ EOF
                 exit 1
             fi
             let "c=c+1"
-            sleep 15
+            sleep 5
         fi
       done
     fi
