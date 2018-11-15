@@ -13,6 +13,7 @@ pipeline {
             steps {
                 script {
                     withAWSParameterStore(namePrefixes: '', naming: 'basename', path: "/jenkins/$PROJECT/vpn", recursive: true, regionName: 'ap-southeast-2') {
+                        sh 'env'
                         sh "./scripts/jenkins-vpn.sh $ACTION"
                     }
                 }
