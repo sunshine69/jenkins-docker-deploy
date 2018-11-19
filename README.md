@@ -34,3 +34,30 @@ into the file `jenkins-plugins.list`. Save and commit into github.
 
 - Run `git pull` to pull the latest change from github
 - Run `./build.sh` script
+
+Agents
+------
+
+*How to make jenkins agent service on windows*
+- First download the jnlp file from browser
+- Right click go around and set the file type to open using javaws command. This steps may not needed
+- Start cmd terminal as Admin and go to the download folder
+- Run javaws -verbose <the-jnlp-file> (have to set -verbose otherwise it just exits)
+- When it runs and connected, click File / Install as Service
+- Quit that program
+- Check in the service it should start. But for some reason we need the option -noCertificateCheck in then
+- In the service findout where the java wrapper is. Get into that folder (d:\jenkins\) look at the config `jenkins-slave.xml` - edit and put that option in.
+
+*Linux setup*
+I currently did a hack by creating the below script and add a cron job to run 1 minutes each
+
+```
+#!/bin/sh
+
+if ! ps -ef|grep -v grep | grep 'https://jenkins.xvt.technology:4343' >/dev/null 2>&1; then
+echo "start jenkins agent"
+cd /home/jenkins
+java -jar agent.jar -jnlpUrl https://jenkins.xvt.technology:4343/computer/<NODE_NAME>/slave-agent.jnlp -secret XXXXXXXXXXXX -workDir "/var/jenkins" -noCertificateCheck &
+```
+
+Someday I can make it as fully systemd service unit file with whistle and bells but for now <shrug>
