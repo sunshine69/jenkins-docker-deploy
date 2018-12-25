@@ -25,6 +25,6 @@ COPY jenkins-plugins.list /usr/share/jenkins/ref/jenkins-plugins.list
 RUN /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/jenkins-plugins.list
 
 
-ENV JENKINS_OPTS --httpPort=-1 --httpsPort=4343 --httpsCertificate=/var/lib/jenkins/cert --httpsPrivateKey=/var/lib/jenkins/pk
-EXPOSE 4343
+ENV JENKINS_OPTS --httpPort=-1 --httpsPort=4343 --httpsCertificate=/var/lib/jenkins/cert --httpsPrivateKey=/var/lib/jenkins/pk -Dio.jenkins.plugins.artifact_manager_jclouds.s3.S3BlobStoreConfig.deleteArtifacts=true -Dio.jenkins.plugins.artifact_manager_jclouds.s3.S3BlobStoreConfig.deleteStashes=true
 
+EXPOSE 4343
