@@ -173,3 +173,5 @@ mstest:1.0.0
 phoenix-autotest:1.2
 extended-choice-parameter:0.76
 pipeline-utility-steps:2.3.0
+file-operations:1.7
+aws-lambda:0.5.10
