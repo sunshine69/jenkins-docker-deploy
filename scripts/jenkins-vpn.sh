@@ -1,14 +1,19 @@
 #!/bin/bash
 
-# This script is meant to run from jenkins run job and can be tested using commandline
-# These vars get from jenkins SSM plugins. We take from command line for testing
+# Run from root cron job
+
 
 JENKINS_VPN_PROFILE_FILE_NAME=${JENKINS_VPN_PROFILE_FILE_NAME:-$1}
 JENKINS_VPN_PASSWORD=${JENKINS_VPN_PASSWORD:-$2}
 JENKINS_OTP_PASSWORD=${JENKINS_OTP_PASSWORD:-$3}
+
 JENKIN_VPN_CONTAINER_NAME=$(basename $JENKINS_VPN_PROFILE_FILE_NAME .ovpn)
+# Quit if there is one script already running
+[ -f "/tmp/$JENKIN_VPN_CONTAINER_NAME" ] && exit 0
 
 echo "Container name: $JENKIN_VPN_CONTAINER_NAME"
+touch /tmp/$JENKIN_VPN_CONTAINER_NAME
+trap "rm -f /tmp/$JENKIN_VPN_CONTAINER_NAME" EXIT
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 WORKSPACE=${WORKSPACE:-$(dirname $SCRIPT_DIR)}
@@ -44,7 +49,7 @@ EOF
     		  docker rm -f $JENKIN_VPN_CONTAINER_NAME || true
     		  docker run -d --rm --name $JENKIN_VPN_CONTAINER_NAME $DOCKER_VOL_OPT --cap-add=NET_ADMIN --workdir $WORKSPACE \
     		    --device /dev/net/tun dperson/openvpn-client openvpn scripts/$JENKINS_VPN_PROFILE_FILE_NAME
-    		  echo Wait 5 minutes until the vpn status is healthy
+    		  echo Wait maximum 5 minutes until the vpn status is healthy
     		  c=0
     		  while [ $c -lt 60 ]; do
     		    if `docker logs --tail 5 $JENKIN_VPN_CONTAINER_NAME | grep 'Initialization Sequence Completed' >/dev/null 2>&1`; then
