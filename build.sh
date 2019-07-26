@@ -4,17 +4,14 @@ if [ ! -f docker-18.06.0-ce.tgz ]; then
     wget -q https://s3-ap-southeast-2.amazonaws.com/xvt-public-repo/pub/docker-18.06.0-ce.tgz
 fi
 
-echo "Enter your xvt-aws AWS_ACCESS_KEY_ID: (used for s3 copying ssl certs)"
-read AWS_ACCESS_KEY_ID
-echo Enter your xvt-aws AWS_SECRET_ACCESS_KEY:
-read -s AWS_SECRET_ACCESS_KEY
+#XVT_KEY_PASS=$(aws ssm get-parameter --name "/xvt-certificates-mngt/xvt.technology.PASSPHRASE" --with-decryption --region ap-southeast-2 | grep -oP '(?<="Value": ")[^"]+(?=".*)')
 
-[ -z "$AWS_ACCESS_KEY_ID" ] && echo "You need to export xvt-aws key and secret before running this script. This is used to s3 copy the xvt.technology ssl key and cert" && exit 1
+XVT_KEY_PASS=$(cat ~/.XVT_KEY_PASS)
 
-export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
+wget https://xvt-public-repo.s3-ap-southeast-2.amazonaws.com/pub/certs/xvt.technology-encrypted.key -O xvt.technology-encrypted.key
+wget https://xvt-public-repo.s3-ap-southeast-2.amazonaws.com/pub/certs/xvt.technology-chained.crt -O xvt.technology.crt
 
-aws s3 cp s3://xvt-aws-secure-backups/jenkins/xvt.technology.key .
-aws s3 cp s3://xvt-aws-secure-backups/jenkins/xvt.technology.crt .
+openssl rsa -passin pass:${XVT_KEY_PASS} -in xvt.technology-encrypted.key -out xvt.technology.key
 
 if [ -z "$BUILD_NUMBER" ]; then
     export BUILD_NUMBER="$(date '+%Y%m%d%H%M%S')"
