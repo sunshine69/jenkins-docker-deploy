@@ -4,6 +4,14 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd $SCRIPT_DIR
 
+if [ "$1" == 'update-cert' ]; then
+    TEST_UPADTE=$(wget https://xvt-public-repo.s3-ap-southeast-2.amazonaws.com/pub/certs/xvt.technology.state -O -)
+    echo $TEST_UPADTE
+    if [ "$TEST_UPADTE" != 'NEED-UPDATE' ]; then
+        exit 0
+    fi
+fi
+
 if [ ! -f docker-18.06.0-ce.tgz ]; then
     wget -q https://s3-ap-southeast-2.amazonaws.com/xvt-public-repo/pub/docker-18.06.0-ce.tgz
 fi
