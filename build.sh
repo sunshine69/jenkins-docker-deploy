@@ -10,12 +10,14 @@ fi
 
 #XVT_KEY_PASS=$(aws ssm get-parameter --name "/xvt-certificates-mngt/xvt.technology.PASSPHRASE" --with-decryption --region ap-southeast-2 | grep -oP '(?<="Value": ")[^"]+(?=".*)')
 
-XVT_KEY_PASS=$(cat ~/.XVT_KEY_PASS)
+if [ -z "$XVT_CERTIFICATES_MNGT_XVT_TECHNOLOGY_PASSPHRASE" ]; then
+    XVT_CERTIFICATES_MNGT_XVT_TECHNOLOGY_PASSPHRASE=$(cat ~/.XVT_KEY_PASS)
+fi
 
 wget https://xvt-public-repo.s3-ap-southeast-2.amazonaws.com/pub/certs/xvt.technology-encrypted.key -O xvt.technology-encrypted.key
 wget https://xvt-public-repo.s3-ap-southeast-2.amazonaws.com/pub/certs/xvt.technology-chained.crt -O xvt.technology.crt
 
-openssl rsa -passin pass:${XVT_KEY_PASS} -in xvt.technology-encrypted.key -out xvt.technology.key
+openssl rsa -passin pass:${XVT_CERTIFICATES_MNGT_XVT_TECHNOLOGY_PASSPHRASE} -in xvt.technology-encrypted.key -out xvt.technology.key
 
 if [ -z "$BUILD_NUMBER" ]; then
     export BUILD_NUMBER="$(date '+%Y%m%d%H%M%S')"
