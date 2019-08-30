@@ -1,7 +1,9 @@
 #!/bin/sh -x
 
-# Run from root cron job
-
+# Run from root cron job like this
+# /home/ubuntu/src/xvt-jenkins/scripts/jenkins-vpn.sh errcd-wa.ovpn <PIN> <OTP_PASS>
+# It will start a openvpn container to connect to the vpn
+# The other container can use the network using docker option --net=container:<container_name>
 
 JENKINS_VPN_PROFILE_FILE_NAME=${JENKINS_VPN_PROFILE_FILE_NAME:-$1}
 JENKINS_VPN_PASSWORD=${JENKINS_VPN_PASSWORD:-$2}
@@ -32,13 +34,13 @@ start_vpn() {
         echo "0 - Status: $vpn_status"
     if [ "$vpn_status" != '"healthy"' ] && [ "$vpn_status" != '"starting"' ] && [ "$vpn_status" != 'completed' ]; then
         reset_count=$((reset_count+1))
-        OTP_CODE=$(docker run --rm --entrypoint python3 xvtsolutions/alpine-python3-aws-ansible:2.7.4 -c "import pyotp; print(pyotp.TOTP('$JENKINS_OTP_PASSWORD').now())")
+        OTP_CODE=$(docker run --rm --entrypoint python3 xvtsolutions/alpine-python3-aws-ansible:2.8.1 -c "import pyotp; print(pyotp.TOTP('$JENKINS_OTP_PASSWORD').now())")
 
         cat <<EOF > $WORKSPACE/scripts/$JENKIN_VPN_CONTAINER_NAME.pass
 jenkins
 ${JENKINS_VPN_PASSWORD}${OTP_CODE}
 EOF
-        docker run --rm --entrypoint sed $DOCKER_VOL_OPT --workdir $WORKSPACE xvtsolutions/alpine-python3-aws-ansible:2.7.4 -i "s/auth\-user\-pass.*\$/auth-user-pass scripts\/$JENKIN_VPN_CONTAINER_NAME.pass/g" scripts/$JENKINS_VPN_PROFILE_FILE_NAME
+        docker run --rm --entrypoint sed $DOCKER_VOL_OPT --workdir $WORKSPACE xvtsolutions/alpine-python3-aws-ansible:2.8.1 -i "s/auth\-user\-pass.*\$/auth-user-pass scripts\/$JENKIN_VPN_CONTAINER_NAME.pass/g" scripts/$JENKINS_VPN_PROFILE_FILE_NAME
 
         vpn_status=$(docker inspect --format='{{json .State.Health.Status}}' $JENKIN_VPN_CONTAINER_NAME 2>/dev/null)
             echo "1 - Status: $vpn_status"
