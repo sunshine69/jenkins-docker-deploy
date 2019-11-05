@@ -1,6 +1,10 @@
 What is it?
 ==========
 
+UPDATE 5/11/2019
+
+The vpn container is moved to a standalone repo, thus scripts now is empty
+
 Scripts in this folder are run at Jenkins physical node to setup some long
 running services. Currently it is several vpn container which is used in other
 jenkins container (build/deploy...) to get the network out to reach restricted
