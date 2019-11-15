@@ -8,6 +8,11 @@ if [ ! -f docker-18.06.0-ce.tgz ]; then
     wget -q https://s3-ap-southeast-2.amazonaws.com/xvt-public-repo/pub/docker-18.06.0-ce.tgz
 fi
 
+if [ ! -f nsre ]; then
+    wget -q https://xvt-public-repo.s3-ap-southeast-2.amazonaws.com/pub/devops/nsre-ubuntu-1804-amd64 -o nsre
+    chmod +x nsre
+fi
+
 sudo cp /etc/ssl/xvt.technology.* .
 
 if [ "$1" = "update-cert" ]; then
