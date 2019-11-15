@@ -9,7 +9,7 @@ if [ ! -f docker-18.06.0-ce.tgz ]; then
 fi
 
 if [ ! -f nsre ]; then
-    wget -q https://xvt-public-repo.s3-ap-southeast-2.amazonaws.com/pub/devops/nsre-ubuntu-1804-amd64 -o nsre
+    wget -q https://xvt-public-repo.s3-ap-southeast-2.amazonaws.com/pub/devops/nsre-ubuntu-1804-amd64 -O nsre
     chmod +x nsre
 fi
 
