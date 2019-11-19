@@ -81,7 +81,7 @@ blueocean-jwt:1.21.0
 ansible:1.0
 logstash:2.3.1
 windows-slaves:1.5
-generic-webhook-trigger:1.63
+generic-webhook-trigger:1.65
 pyenv-pipeline:2.1.2
 multi-slave-config-plugin:1.2.0
 favorite:2.3.2
