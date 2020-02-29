@@ -31,6 +31,7 @@ if [ -z "$BUILD_NUMBER" ]; then
     export BUILD_NUMBER="$(date '+%Y%m%d%H%M%S')"
 fi
 
+docker tag jenkins/xvt-jenkins:latest jenkins/xvt-jenkins:backup_for_${BUILD_NUMBER}
 docker build -t jenkins/xvt-jenkins:${BUILD_NUMBER} --build-arg update_all=$update_all .
 docker tag jenkins/xvt-jenkins:${BUILD_NUMBER} jenkins/xvt-jenkins:latest
 
