@@ -7,8 +7,8 @@ credentials:2.3.3
 ansicolor:0.6.3
 blueocean-i18n:1.22.0
 structs:1.20
-artifact-manager-s3:1.8
-pipeline-aws:1.39
+artifact-manager-s3:1.9
+pipeline-aws:1.40
 build-timeout:1.19.1
 envinject:2.3.0
 jquery:1.12.4-1
@@ -82,10 +82,10 @@ jquery-ui:1.0.2
 compress-buildlog:1.2
 blueocean-personalization:1.22.0
 credentials-binding:1.21
-slack:2.36
+slack:2.37
 trilead-api:1.0.5
 pubsub-light:1.13
-copyartifact:1.43
+copyartifact:1.43.1
 display-url-api:2.3.2
 pipeline-milestone-step:1.3.1
 aws-parameter-store:1.2.2
@@ -167,7 +167,7 @@ blueocean-config:1.22.0
 github-branch-source:2.6.0
 blueocean-dashboard:1.22.0
 apache-httpcomponents-client-4-api:4.5.10-2.0
-jira:3.0.12
+jira:3.0.13
 github:1.29.5
 blueocean-bitbucket-pipeline:1.22.0
 pipeline-utility-steps:2.5.0
