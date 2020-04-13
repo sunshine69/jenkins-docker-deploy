@@ -28,8 +28,11 @@ COPY nsre /usr/bin/nsre
  
 USER jenkins
 
-COPY xvt.technology.crt /var/lib/jenkins/cert
-COPY xvt.technology.key /var/lib/jenkins/pk
+ARG CERT_FILE=inxuanthuy.com.crt
+ARG KEY_FILE=inxuanthuy.com.key
+
+COPY $CERT_FILE /var/lib/jenkins/cert
+COPY $KEY_FILE /var/lib/jenkins/pk
 COPY executors.groovy /usr/share/jenkins/ref/init.groovy.d/executors.groovy
 COPY jenkins-plugins.list /usr/share/jenkins/ref/jenkins-plugins.list 
 

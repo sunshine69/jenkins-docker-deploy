@@ -1,23 +1,32 @@
 #!/bin/bash -xe
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+CERT_DOMAIN=inxuanthuy.com
+CERT_STATE_URL="https://note.inxuanthuy.com:6919/view?id=1704&t=3"
+WEB_RESOURCE_URL="https://act2-prod-infra-build.s3-ap-southeast-2.amazonaws.com/pub/devops"
+
 
 cd $SCRIPT_DIR
 
 if [ ! -f docker-18.06.0-ce.tgz ]; then
-    wget -q https://s3-ap-southeast-2.amazonaws.com/xvt-public-repo/pub/docker-18.06.0-ce.tgz
+    wget -q "${WEB_RESOURCE_URL}/docker-18.06.0-ce.tgz"
 fi
 
-wget https://xvt-public-repo.s3-ap-southeast-2.amazonaws.com/pub/devops/nsre-linux-amd64-static -O nsre
+wget "${WEB_RESOURCE_URL}/nsre-linux-amd64-static" -O nsre
+chmod +x nsre
 
-sudo cp /etc/ssl/xvt.technology.* .
+sudo cp /etc/ssl/${CERT_DOMAIN}.* .
 
 if [ "$1" = "update-cert" ]; then
-    STATUS=$(aws s3 cp s3://xvt-public-repo/pub/certs/jenkins.xvt.technology.state --profile xvt-public-repo -)
+    STATUS=$(wget $CERT_STATE_URL -O -)
     [ "x$STATUS" != "xNEED-UPDATE" ] && echo "Certs status is $STATUS. Do nothing" && exit 0
-    echo 'UP-TO-DATE' > /tmp/jenkins.xvt.technology.state
-    aws s3 cp /tmp/jenkins.xvt.technology.state s3://xvt-public-repo/pub/certs/jenkins.xvt.technology.state --profile xvt-public-repo
-    rm -f /tmp/jenkins.xvt.technology.state
+    echo "You need to copy the up-ro-date cert manually into this dir $(pwd). When done hit enter."
+    read _junk
+    echo 'UP-TO-DATE' > /tmp/jenkins.${CERT_DOMAIN}.state
+    #aws s3 cp /tmp/jenkins.${CERT_DOMAIN}.state s3://xvt-public-repo/pub/certs/jenkins.${CERT_DOMAIN}.state --profile xvt-public-repo
+    echo "You need to update the cert status file manually. The URL is $CERT_STATE_URL. Hit enter to continue"
+    read junk_
+    rm -f /tmp/jenkins.${CERT_DOMAIN}.state
     update_all=no
 else
     echo "Update jenkins? y/n"
@@ -44,5 +53,6 @@ if [ "$ans" = 'y' ]; then
         -v /var/run/docker.sock:/var/run/docker.sock \
         -v /dev/net/tun:/dev/net/tun \
         -v jenkins_home:/var/jenkins_home \
+# docker-host.xvt.internal is the host having the dockerd run. Inside the jenkins container if we need to run docker container we will use this docker host name and IP.
         --add-host="docker-host.xvt.internal:10.100.9.95" jenkins/xvt-jenkins:latest
 fi
