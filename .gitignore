@@ -1,4 +1,6 @@
-xvt.technology*
+*.crt
+*.key
+*.pem
 *.tgz
 *.tar
 *.gz

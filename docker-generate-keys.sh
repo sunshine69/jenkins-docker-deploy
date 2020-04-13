@@ -14,6 +14,17 @@
 #         --tlskey=server-key.pem    \
 #         -H=0.0.0.0:2376
 #
+
+# You can modify the /etc/docker/daemon.json similar like this
+#{
+# "data-root": "/mnt/portdata/docker"
+# "tls": true,
+# "tlsverify": true,
+# "tlscacert": "/etc/docker/ssl/ca.pem",
+# "tlscert": "/etc/docker/ssl/server-cert.pem",
+# "tlskey": "/etc/docker/ssl/server-key.pem"
+#}
+
 # To connect to the Docker Daemon:
 #
 #     sudo docker                    \
@@ -31,6 +42,8 @@ set -x
 
 DAYS=1460
 PASS=$(openssl rand -hex 16)
+COMMON_SERVER_NAME="docker-host.kieu.internal"
+COMMON_CLIENT_NAME="docker-client.kieu.internal"
 
 # remove certificates from previous execution.
 rm -f *.pem *.srl *.csr *.cnf
@@ -39,18 +52,18 @@ rm -f *.pem *.srl *.csr *.cnf
 # generate CA private and public keys
 echo 01 > ca.srl
 openssl genrsa -des3 -out ca-key.pem -passout pass:$PASS 2048
-openssl req -subj '/CN=docker-host.xvt.internal/' -new -x509 -days $DAYS -passin pass:$PASS -key ca-key.pem -out ca.pem
+openssl req -subj "/CN=${COMMON_SERVER_NAME}/" -new -x509 -days $DAYS -passin pass:$PASS -key ca-key.pem -out ca.pem
 
 # create a server key and certificate signing request (CSR)
 openssl genrsa -des3 -out server-key.pem -passout pass:$PASS 2048
-openssl req -new -key server-key.pem -out server.csr -passin pass:$PASS -subj '/CN=docker-host.xvt.internal/'
+openssl req -new -key server-key.pem -out server.csr -passin pass:$PASS -subj "/CN=${COMMON_SERVER_NAME}/"
 
 # sign the server key with our CA
 openssl x509 -req -days $DAYS -passin pass:$PASS -in server.csr -CA ca.pem -CAkey ca-key.pem -out server-cert.pem
 
 # create a client key and certificate signing request (CSR)
 openssl genrsa -des3 -out key.pem -passout pass:$PASS 2048
-openssl req -subj '/CN=docker-client.xvt.internal' -new -key key.pem -out client.csr -passin pass:$PASS
+openssl req -subj "/CN=${COMMON_CLIENT_NAME}" -new -key key.pem -out client.csr -passin pass:$PASS
 
 # create an extensions config file and sign
 echo extendedKeyUsage = clientAuth > extfile.cnf

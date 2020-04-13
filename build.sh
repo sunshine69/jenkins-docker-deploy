@@ -44,6 +44,27 @@ docker tag jenkins/xvt-jenkins:latest jenkins/xvt-jenkins:backup_for_${BUILD_NUM
 docker build -t jenkins/xvt-jenkins:${BUILD_NUMBER} --build-arg update_all=$update_all .
 docker tag jenkins/xvt-jenkins:${BUILD_NUMBER} jenkins/xvt-jenkins:latest
 
+# docker-host.kieu.internal is the host having the dockerd run. Inside the
+# jenkins container if we need to run docker container we will use this docker
+# host name and IP. The docker server needs to enable TLS thus you need to
+# generate the key pair. See the script docker-generate-keys.sh to generate
+# this. The hostname of the key must match this entry here.
+# To run a docker container in a jenkinsfile do like this
+#pipeline {
+#    environment {
+#        DOCKER_TLS_VERIFY=true
+#        DOCKER_TLS=true
+#        DOCKER_HOST="tcp://docker-host.kieu.internal:2376"
+#        DOCKER_CA_PATH="/var/jenkins_home/.docker"
+#        DOCKER_CERT_PATH="/var/jenkins_home/.docker"
+#     }
+
+# You have run the docker-generate-keys.sh which will generates several files.
+# Configure the docker server to use the key and copy the client key to the
+# docker volume `jenkins_home`/.docker folder.
+
+DOCKER_HOST_DNS_LINE="docker-host.kieu.internal:10.100.9.95"
+
 echo "Stop and start jenkins container? y/n"
 read ans
 if [ "$ans" = 'y' ]; then
@@ -53,6 +74,5 @@ if [ "$ans" = 'y' ]; then
         -v /var/run/docker.sock:/var/run/docker.sock \
         -v /dev/net/tun:/dev/net/tun \
         -v jenkins_home:/var/jenkins_home \
-# docker-host.xvt.internal is the host having the dockerd run. Inside the jenkins container if we need to run docker container we will use this docker host name and IP.
-        --add-host="docker-host.xvt.internal:10.100.9.95" jenkins/xvt-jenkins:latest
+        --add-host="$DOCKER_HOST_DNS_LINE" jenkins/xvt-jenkins:latest
 fi
