@@ -25,6 +25,8 @@ COPY docker-18.06.0-ce.tgz /tmp/docker-18.06.0-ce.tgz
 RUN mkdir -p /tmp/1 && tar xzf /tmp/docker-18.06.0-ce.tgz -C /tmp/1 && mv /tmp/1/docker/* /usr/bin/ && rm -rf /tmp/1 /tmp/docker-18.06.0-ce.tgz
 
 COPY nsre /usr/bin/nsre
+
+COPY helm /usr/local/bin/helm
  
 USER jenkins
 

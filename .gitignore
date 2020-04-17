@@ -1,3 +1,4 @@
+*.swo
 *.crt
 *.key
 *.pem
@@ -10,6 +11,7 @@
 *.pass
 *.swp
 nsre*
+helm
 *.orig
 *.bak
 *~
