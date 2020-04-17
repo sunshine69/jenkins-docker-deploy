@@ -12,10 +12,14 @@ if [ ! -f docker-18.06.0-ce.tgz ]; then
     wget -q "${WEB_RESOURCE_URL}/docker-18.06.0-ce.tgz"
 fi
 
-wget "${WEB_RESOURCE_URL}/nsre-linux-amd64-static" -O nsre
-chmod +x nsre
+if [ ! -f nsre ]; then
+    wget "${WEB_RESOURCE_URL}/nsre-linux-amd64-static" -O nsre
+    chmod +x nsre
+fi
 
-sudo cp /etc/ssl/${CERT_DOMAIN}.* .
+if [ ! -f ${CERT_DOMAIN}.key ]; then
+    sudo cp /etc/ssl/${CERT_DOMAIN}.* .
+fi
 
 if [ "$1" = "update-cert" ]; then
     STATUS=$(wget $CERT_STATE_URL -O -)
@@ -40,7 +44,7 @@ if [ -z "$BUILD_NUMBER" ]; then
     export BUILD_NUMBER="$(date '+%Y%m%d%H%M%S')"
 fi
 
-docker tag jenkins/xvt-jenkins:latest jenkins/xvt-jenkins:backup_for_${BUILD_NUMBER}
+docker tag jenkins/xvt-jenkins:latest jenkins/xvt-jenkins:backup_for_${BUILD_NUMBER} || true
 docker build -t jenkins/xvt-jenkins:${BUILD_NUMBER} --build-arg update_all=$update_all .
 docker tag jenkins/xvt-jenkins:${BUILD_NUMBER} jenkins/xvt-jenkins:latest
 
