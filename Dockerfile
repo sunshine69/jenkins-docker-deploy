@@ -31,8 +31,13 @@ USER jenkins
 ARG CERT_FILE=inxuanthuy.com.crt
 ARG KEY_FILE=inxuanthuy.com.key
 
-COPY $CERT_FILE /var/lib/jenkins/cert
-COPY $KEY_FILE /var/lib/jenkins/pk
+# Remember jenkins does not like private key - it only accept rsa key. Thus you
+# may need to convert it using openssl command - like openssl rsa -in
+# private_key -out your-rsa-key
+
+COPY --chown=jenkins:jenkins ${CERT_FILE} /var/lib/jenkins/cert
+COPY --chown=jenkins:jenkins ${KEY_FILE} /var/lib/jenkins/pk
+
 COPY executors.groovy /usr/share/jenkins/ref/init.groovy.d/executors.groovy
 COPY jenkins-plugins.list /usr/share/jenkins/ref/jenkins-plugins.list 
 

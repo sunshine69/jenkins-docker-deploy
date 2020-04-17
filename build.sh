@@ -67,7 +67,9 @@ docker tag jenkins/xvt-jenkins:${BUILD_NUMBER} jenkins/xvt-jenkins:latest
 # Configure the docker server to use the key and copy the client key to the
 # docker volume `jenkins_home`/.docker folder.
 
-DOCKER_HOST_DNS_LINE="docker-host.kieu.internal:10.100.9.95"
+DOCKER_HOST_DNS_LINE="docker-host.kieu.internal:192.168.0.206"
+
+printf "\nIf the first time build you need to switch to other console run docker logs -f xvt_jenkins to find out the jenkins admin hash. Then access the web interface to complete the setup."
 
 echo "Stop and start jenkins container? y/n"
 read ans
