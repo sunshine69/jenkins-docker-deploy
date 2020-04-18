@@ -31,6 +31,9 @@ fi
 # Update jenkins java keystore
 scp 192.168.0.130:/mnt/doc/ansible-playbooks/letsencrypt/jenkins.jks .
 
+if [ -z "$BUILD_NUMBER" ]; then
+    export BUILD_NUMBER="$(date '+%Y%m%d%H%M%S')"
+fi
 
 if [ "$1" = "update-cert" ]; then
     STATUS=$(wget $CERT_STATE_URL -O -)
@@ -43,21 +46,24 @@ if [ "$1" = "update-cert" ]; then
     read junk_
     rm -f /tmp/jenkins.${CERT_DOMAIN}.state
     update_all=no
+    docker tag jenkins/xvt-jenkins:latest jenkins/xvt-jenkins:backup_for_${BUILD_NUMBER} || true
+    docker build -t jenkins/xvt-jenkins:${BUILD_NUMBER} -f Dockerfile.update-cert .
+    docker tag jenkins/xvt-jenkins:${BUILD_NUMBER} jenkins/xvt-jenkins:latest
 else
     echo "Update jenkins? y/n"
     read ans
-    [ "$ans" != "y" ] && echo "Aborted by user" && exit 1
-    update_all=yes
-    docker pull jenkins/jenkins:lts
+    if [ "$ans" != "y" ]; then
+        echo "Aborted. If you only want to update the SSL cert run $0 update-cert"
+        exit 1
+    else
+        update_all=yes
+        docker pull jenkins/jenkins:lts
+        docker tag jenkins/xvt-jenkins:latest jenkins/xvt-jenkins:backup_for_${BUILD_NUMBER} || true
+        docker build -t jenkins/xvt-jenkins:${BUILD_NUMBER} --build-arg update_all=$update_all .
+        docker tag jenkins/xvt-jenkins:${BUILD_NUMBER} jenkins/xvt-jenkins:latest
+    fi
 fi
 
-if [ -z "$BUILD_NUMBER" ]; then
-    export BUILD_NUMBER="$(date '+%Y%m%d%H%M%S')"
-fi
-
-docker tag jenkins/xvt-jenkins:latest jenkins/xvt-jenkins:backup_for_${BUILD_NUMBER} || true
-docker build -t jenkins/xvt-jenkins:${BUILD_NUMBER} --build-arg update_all=$update_all .
-docker tag jenkins/xvt-jenkins:${BUILD_NUMBER} jenkins/xvt-jenkins:latest
 
 # docker-host.kieu.internal is the host having the dockerd run. Inside the
 # jenkins container if we need to run docker container we will use this docker
