@@ -31,15 +31,28 @@ COPY helm /usr/local/bin/helm
  
 USER jenkins
 
-ARG CERT_FILE=inxuanthuy.com.crt
-ARG KEY_FILE=inxuanthuy.com.key
+#ARG CERT_FILE=inxuanthuy.com.crt
+#ARG KEY_FILE=inxuanthuy.com.key
 
 # Remember jenkins does not like private key - it only accept rsa key. Thus you
 # may need to convert it using openssl command - like openssl rsa -in
 # private_key -out your-rsa-key
 
-COPY --chown=jenkins:jenkins ${CERT_FILE} /var/lib/jenkins/cert
-COPY --chown=jenkins:jenkins ${KEY_FILE} /var/lib/jenkins/pk
+# Update: Have to switch to use java keystore as the old way - it does not send
+# the whole certificate chain thus gitea or any client does not support auto
+# certificate discovery wont accept it.
+# Use keytool and openssl to convert
+# openssl pkcs12 -inkey inxuanthuy.com.key -in inxuanthuy.com.crt -export -out inxuanthuy.com.pkcs12
+# keytool -importkeystore -srckeystore inxuanthuy.com.pkcs12 -srcstoretype pkcs12 -destkeystore jenkins.jks
+#Or a batch mode (again f*** u keytool always ask for source password
+
+# openssl pkcs12 -inkey inxuanthuy.com.key -in inxuanthuy.com.crt -export -passout pass:1q2w3e -out inxuanthuy.com.pkcs12
+# echo 1q2w3e|keytool -importkeystore -srckeystore inxuanthuy.com.pkcs12 -srcstoretype pkcs12 -storepass 1q2w3e -destkeystore jenkins.jks -noprompt
+
+
+#COPY --chown=jenkins:jenkins ${CERT_FILE} /var/lib/jenkins/cert
+#COPY --chown=jenkins:jenkins ${KEY_FILE} /var/lib/jenkins/pk
+COPY --chown=jenkins:jenkins jenkins.jks /var/lib/jenkins/jenkins.jks
 
 COPY executors.groovy /usr/share/jenkins/ref/init.groovy.d/executors.groovy
 COPY jenkins-plugins.list /usr/share/jenkins/ref/jenkins-plugins.list 
@@ -48,7 +61,8 @@ RUN if [ "$update_all" = "yes" ]; then \
     /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/jenkins-plugins.list; fi
 
 # These crt and key needs to supplied at docker run command.
-ENV JENKINS_OPTS --httpPort=-1 --httpsPort=4343 --httpsCertificate=/var/lib/jenkins/cert --httpsPrivateKey=/var/lib/jenkins/pk -Dio.jenkins.plugins.artifact_manager_jclouds.s3.S3BlobStoreConfig.deleteArtifacts=true
+#ENV JENKINS_OPTS --httpPort=-1 --httpsPort=4343 --httpsCertificate=/var/lib/jenkins/cert --httpsPrivateKey=/var/lib/jenkins/pk -Dio.jenkins.plugins.artifact_manager_jclouds.s3.S3BlobStoreConfig.deleteArtifacts=true
+ENV JENKINS_OPTS --httpPort=-1 --httpsPort=4343 --httpsKeyStore=/var/lib/jenkins/jenkins.jks --httpsKeyStorePassword=1q2w3e -Dio.jenkins.plugins.artifact_manager_jclouds.s3.S3BlobStoreConfig.deleteArtifacts=true
 
 ENV JAVA_OPTS -Dorg.apache.commons.jelly.tags.fmt.timeZone=Australia/Brisbane
 

@@ -1,3 +1,5 @@
+*.pkcs*
+*.jks
 *.swo
 *.crt
 *.key
