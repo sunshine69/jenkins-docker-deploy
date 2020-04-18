@@ -17,7 +17,8 @@ RUN if [ "$update_all" = "yes" ]; then \
     && apt-get install -y sudo python-pip \
     && rm -rf /var/lib/apt/lists/*; fi
 
-RUN echo "jenkins ALL=NOPASSWD: ALL" >> /etc/sudoers
+RUN echo "jenkins ALL=NOPASSWD: ALL" >> /etc/sudoers \
+    echo "docker:x:135:jenkins" >> /etc/group
 
 RUN if [ "$update_all" = "yes" ]; then pip install ansible awscli botocore boto3; fi
 

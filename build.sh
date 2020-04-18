@@ -4,7 +4,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 CERT_DOMAIN=inxuanthuy.com
 CERT_STATE_URL="https://note.inxuanthuy.com:6919/view?id=1704&t=3"
 WEB_RESOURCE_URL="https://act2-prod-infra-build.s3-ap-southeast-2.amazonaws.com/pub/devops"
-
+HELM_DOWNLOAD_URL="https://get.helm.sh/helm-v2.16.6-linux-amd64.tar.gz"
 
 cd $SCRIPT_DIR
 
@@ -15,6 +15,13 @@ fi
 if [ ! -f nsre ]; then
     wget "${WEB_RESOURCE_URL}/nsre-linux-amd64-static" -O nsre
     chmod +x nsre
+fi
+
+if [ ! -f helm ]; then
+    wget "${HELM_DOWNLOAD_URL}" -O helm.tar.gz
+    tar xf helm.tar.gz
+    mv linux-amd64/helm .
+    rm -rf helm.tar.gz linux-amd64
 fi
 
 if [ ! -f ${CERT_DOMAIN}.key ]; then
