@@ -24,9 +24,13 @@ if [ ! -f helm ]; then
     rm -rf helm.tar.gz linux-amd64
 fi
 
-if [ ! -f ${CERT_DOMAIN}.key ]; then
-    sudo cp /etc/ssl/${CERT_DOMAIN}.* .
-fi
+#if [ ! -f ${CERT_DOMAIN}.key ]; then
+#    sudo cp /etc/ssl/${CERT_DOMAIN}.* .
+#fi
+
+# Update jenkins java keystore
+scp 192.168.0.130:/mnt/doc/ansible-playbooks/letsencrypt/jenkins.jks .
+
 
 if [ "$1" = "update-cert" ]; then
     STATUS=$(wget $CERT_STATE_URL -O -)
