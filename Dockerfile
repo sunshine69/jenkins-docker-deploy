@@ -20,7 +20,7 @@ RUN if [ "$update_all" = "yes" ]; then \
 RUN echo "jenkins ALL=NOPASSWD: ALL" >> /etc/sudoers; \
     echo "docker:x:135:jenkins" >> /etc/group
 
-RUN if [ "$update_all" = "yes" ]; then pip install ansible awscli botocore boto3; fi
+RUN if [ "$update_all" = "yes" ]; then pip install ansible awscli botocore boto3 pywinrm requests bs4; fi
 
 COPY docker-18.06.0-ce.tgz /tmp/docker-18.06.0-ce.tgz
 RUN mkdir -p /tmp/1 && tar xzf /tmp/docker-18.06.0-ce.tgz -C /tmp/1 && mv /tmp/1/docker/* /usr/bin/ && rm -rf /tmp/1 /tmp/docker-18.06.0-ce.tgz
