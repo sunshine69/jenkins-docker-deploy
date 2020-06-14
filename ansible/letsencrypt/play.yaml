@@ -1,0 +1,59 @@
+# ansible-playbook play.yaml --vault-password-file=<path>
+
+- name: Include setup host playbook
+  import_playbook: "{{ playbook_dir }}/../jenkins-host.yaml"
+
+- name: LetsEcrypt
+  hosts: jenkins_hosts
+  connection: local
+  gather_facts: yes
+  vars:
+    work_dir: "{{ playbook_dir }}"
+  tasks:
+    - meta: end_host
+      when: 'ansible_hostname != inventory_hostname'
+
+    - block:
+        - name: Generate the {{ cert_domain }}.csr_details.txt
+          template:
+            src: "{{ work_dir }}/csr_details.j2"
+            dest: "{{ work_dir }}/{{ cert_domain }}.csr_details.txt"
+
+        - get_url:
+            url: https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem
+            dest: "{{ work_dir }}/intermediate.pem"
+
+        - name: Generate new keys pair and csr
+          shell: |
+            if [ ! -f "{{ work_dir }}/account.key" ]; then openssl genrsa -out account.key; fi
+            openssl req -new -sha256 -nodes -out {{ cert_domain }}.csr -newkey rsa:2048 -keyout {{ cert_domain }}.key -config <( cat {{ cert_domain }}.csr_details.txt )
+          args:
+            chdir: "{{ work_dir }}"
+            executable: /bin/bash
+
+      when: reset_key|default()
+
+    - acme_certificate:
+        #acme_directory: https://acme-staging.api.letsencrypt.org/directory
+        acme_directory: "{{ acme_directory }}"
+        account_key: "{{ work_dir }}/account.key"
+        account_email: 'msh.computing@gmail.com'
+        acme_version: 2
+        terms_agreed: yes
+        csr: "{{ work_dir }}/{{ cert_domain }}.csr"
+        dest: "{{ work_dir }}/{{ cert_domain }}.crt"
+        challenge: "{{ letsencrypt_challenge|default('dns-01') }}"
+        remaining_days: "{{ remaining_days }}"
+      register: sample_com_challenge
+
+    - debug:
+        var: sample_com_challenge
+
+    - include_tasks: "update-{{ cert_domain }}.yaml"
+      when: sample_com_challenge.changed|default() or reset_key|default()
+
+    - name: Deploy the cron task to update
+      cron:
+        name: Update letsencrypt certificate
+        job: "cd {{ playbook_dir }}/../ && ansible-playbook {{ playbook_dir }}/play.yaml -e duckdns_org_account_token={{ duckdns_org_account_token }}"
+        special_time: weekly

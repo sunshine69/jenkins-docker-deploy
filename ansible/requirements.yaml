@@ -1,0 +1,3 @@
+- src: https://github.com/sunshine69/ansible-role-docker.git
+  version: v1.6
+  name: docker

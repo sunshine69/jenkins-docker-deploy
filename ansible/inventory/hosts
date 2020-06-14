@@ -1,0 +1,4 @@
+# Add your new host into this group and then create your own inventoy data in directory host_vars (copying and edit current one is fine)
+
+[jenkins_hosts]
+<your-jenkins-host-name>

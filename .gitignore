@@ -17,3 +17,7 @@ helm
 *.orig
 *.bak
 *~
+**/jenkins-docker/Dockerfile
+**/jenkins-docker/Dockerfile.update-cert
+**/jenkins-docker/build.sh
+**/jenkins-docker/jenkins.jks

@@ -1,0 +1,7 @@
+remaining_days: 25
+#acme_directory: "https://acme-v01.api.letsencrypt.org/directory"
+#use v2 for wildcards certs
+acme_directory: "https://acme-v02.api.letsencrypt.org/directory"
+
+jenkins_agent_port: 50000
+jenkins_port: 8080

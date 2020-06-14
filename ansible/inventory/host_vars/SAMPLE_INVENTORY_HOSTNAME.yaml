@@ -1,0 +1,8 @@
+cert_domain: xxx
+jenkins_image_name: "{{ inventory_hostname }}-jenkins-lts"
+key_passphrase:
+
+# Domain specific vars depending on each letsecnrypt implementation
+duckdns_org_account_token:
+jenkins_api_user: jenkins_api
+jenkins_api_token:

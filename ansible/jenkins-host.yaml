@@ -1,0 +1,53 @@
+# run on the jenkins host itself
+# ansible-playbook  jenkins-host.yaml
+
+- name: Setup jenkins hosts
+  hosts: jenkins_hosts
+  connection: local
+  gather_facts: yes
+  roles:
+
+  # If you dont have sudo then ignore the errors. Tell your sysadmin to install
+  # docker for you and add you to teh docker group.
+    - name: docker
+      become: yes
+      ignore_errors: yes
+      vars:
+        # we have our own way to cleanup later on thus disabled this
+        docker_clean_image_enabled: False
+
+  pre_tasks:
+    - meta: end_host
+      when: 'ansible_hostname != inventory_hostname'
+
+  tasks:
+    - name: Deploy the per hosts deployment scripts
+      template:
+        src: "{{ item }}"
+        dest: "{{ playbook_dir }}/../{{ item }}"
+        mode: preserve
+      with_items:
+        - build.sh
+        - Dockerfile
+        - Dockerfile.update-cert
+        - winstone.properties
+
+    - name: Install package dependencies
+      block:
+        - name: Install python docker module for the clean up script
+          pip:
+            name: docker
+            extra_args: --user
+
+        - name: Deploy the cron task docker-cleanup.py
+          cron:
+            name: docker clean up
+            job: "{{ playbook_dir }}/../scripts/docker-cleanup.py"
+            special_time: daily
+
+        - name: Deploy the cron task to update external IP @reboot
+          cron:
+            name: "update external IP @reboot"
+            job: "curl https://www.duckdns.org/update?domains={{ cert_domain }}&token={{ duckdns_org_account_token }}"
+            special_time: reboot
+          when: 'duckdns_org_account_token is defined and duckdns_org_account_token != ""'
