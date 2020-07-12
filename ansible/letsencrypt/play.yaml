@@ -25,6 +25,7 @@
 
         - name: Generate new keys pair and csr
           shell: |
+            rm -f *{{ cert_domain }}*.key *{{ cert_domain }}*.crt *{{ cert_domain }}*.pkcs12 *{{ cert_domain }}*.csr || true
             if [ ! -f "{{ work_dir }}/account.key" ]; then openssl genrsa -out account.key; fi
             openssl req -new -sha256 -nodes -out {{ cert_domain }}.csr -newkey rsa:2048 -keyout {{ cert_domain }}.key -config <( cat {{ cert_domain }}.csr_details.txt )
           args:

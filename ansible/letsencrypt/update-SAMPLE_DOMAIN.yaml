@@ -9,6 +9,23 @@
     url: 'https://www.duckdns.org/update?domains={{ cert_domain }}&token={{ duckdns_org_account_token }}&txt={{ item.value[0] }}&verbose=true&clear=false'
   loop: "{{ query('dict', sample_com_challenge.challenge_data_dns|default({})) }}"
 
+# Sample to update aws route53
+#- name: Update TXT record to aws
+#  route53:
+#    profile: route53admin
+#    state: present
+#    zone: act2.com.au
+#    record: "{{ item.key }}"
+#    type: TXT
+#    value: '"{{ item.value[0] }}"'
+#    overwrite: yes
+#  loop: "{{ query('dict', sample_com_challenge.challenge_data_dns|default({})) }}"
+
+- pause:
+    minutes: 5
+    prompt: "Wait for DNS propagation"
+
+
 - acme_certificate:
     account_key: "{{ work_dir }}/account.key"
     account_email: "{{ contact_email|default('steve.kieu@au.abb.com') }}"
