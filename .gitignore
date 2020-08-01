@@ -21,3 +21,8 @@ helm
 **/jenkins-docker/Dockerfile.update-cert
 **/jenkins-docker/build.sh
 **/jenkins-docker/jenkins.jks
+Dockerfile
+Dockerfile.update-cert
+jenkins-plugins.list
+build.sh
+winstone.properties
