@@ -3,7 +3,7 @@
 
 Contain Dockerfile for jenkins.
 
-This project will produce a docker image for ABB PGES DEVOPS to run jenkins.
+This project will produce a docker image for to run jenkins.
 
 It will guide a simple deployment and maintain your jenkins instance. For more information please take a look at
 the playbooks.
@@ -23,10 +23,10 @@ Usages
 
 Assume you already prepare the your host inventory and commit to the repo like below:
 
-- Get the repo `git@github.com:Mincom/pges-devops.git`
-- Add your new jenkins host into the inventory file `ansible/inventory/hosts` in the `jenkins_hosts` host group.
+- Get the this repo 
+- Add your new jenkins host into the inventory file `ansible/inventory/hosts` in the `jenkins_hosts` host group
   The host inventory name must be the same as current jenkins host name
-- Add your inventory data of your host to `ansible/inventory/host_vars/<you  hostname>.yaml`. 
+- Add your inventory data of your host to `ansible/inventory/host_vars/<you  hostname>.yaml`
   You can use the existing one as template and copy over. Update  these
   variables. To get the vaulted string use ansible command like below, you need
   to generate a vault password for your host.
